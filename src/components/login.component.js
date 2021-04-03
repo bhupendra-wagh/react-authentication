@@ -1,151 +1,76 @@
-import React, { Component } from "react";
-import Form from "react-validation/build/form";
-import Input from "react-validation/build/input";
-import CheckButton from "react-validation/build/button";
-import AuthService from "../services/auth-service";
-import { Link } from 'react-router-dom';
+import React from 'react';
+import { Formik, Form, Field } from 'formik';
+import * as Yup from 'yup';
+import AuthService from '../services/auth-service';
+import FlashMessage from 'react-flash-message';
+import {  Link, Redirect } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
-const required = value => {
+const SignupSchema = Yup.object().shape({
+  
+  password: Yup.string()
+    .min(2, 'Too Short!')
+    .max(50, 'Too Long!')
+    .required('This field is required!'),
+  email: Yup.string().email('Invalid email').required('This field is required!'),
+});
 
-    if (!value) {
-        return (
-            <div  className="error" role="alert">
-                This field is required!
-            </div>
-        );
-    }
-};
-
-export default class Login extends Component {
-    constructor(props) {
-        super(props);
-
-        this.state = {
-            email: "",
-            password: "",
-            loading: false,
-            message: ""
-        };
-    }
-
-    onChangeEmail = (e) => {
-        this.setState({
-            email: e.target.value
-        });
-    }
-
-    onChangePassword = (e) => {
-        this.setState({
-            password: e.target.value
-        });
-    }
-
-    handleLogin(e) {
-        e.preventDefault();
-
-        this.setState({
-            message: "",
-            loading: true
-        });
-
-        this.form.validateAll();
-
-        if (this.checkBtn.context._errors.length === 0) {
-            AuthService.login(this.state.email, this.state.password).then(
-                () => {
-                    console.log(AuthService.getCurrentUser());
+const Login = () => {
+  let history = useHistory(); 
+  return <div>
+    <h1>Login</h1>
+    <Formik
+      initialValues={{
+        password: '',
+        email: '',
+      }}
+      validationSchema={SignupSchema}
+      onSubmit={(values, { resetForm }) => {
+        // same shape as initial values
+        
+            AuthService.login(values.email, values.password).then(
+                () => 
+                {
+                    console.log(123);
+                    
+                    history.push("/profile");
                 },
                 error => {
-                    console.log(error);
-                    const resMessage =
-                        (error.response &&
-                            error.response.data &&
-                            error.response.data.message) ||
-                        error.message ||
-                        error.toString();
-
-                    this.setState({
-                        loading: false,
-                        message: resMessage
-                    });
+                    
+                    
                 }
-            );
-        } else {
-            this.setState({
-                loading: false
-            });
-        }
-    }
+            )
+      }}
+    >
+      {({ errors, touched }) => (
+        <div className="main"> 
+            <Form>
+                
+                <div>
+                    <label htmlFor="email">Email Address</label>
+                    <Field type="email" name="email" className="input"/>
+                    
+                </div>
+                {errors.email && touched.email ? (
+                    <div className="error">{errors.email}</div>
+                ) : null}
+                <div>
+                    <label htmlFor="password">Password</label>
+                    <Field name="password" type="password" className="input"/>
+                </div>
+                {errors.password && touched.password ? <div className="error">{errors.password}</div> : null}
+                <button className="submitbtn" type="submit">Submit</button>
+            </Form>
 
-    render() {
-        return (
-            <div className="main">
-                    <h1 className="heading-createaccount">Login</h1>
-                    <Form
-                        onSubmit={this.handleLogin}
-                        ref={c => {
-                            this.form = c;
-                        }}
-                    >
-                        {this.props.children}
-
-                        <div>
-                            <label htmlFor="email">Email</label>
-                            <Input
-                                type="text"
-                                className="form-control"
-                                name="email"
-                                value={this.state.email}
-                                onChange={this.onChangeEmail}
-                                validations={[required]}
-                            />
-                        </div>
-
-                        <div>
-                            <label htmlFor="password">Password</label>
-                            <Input
-                                type="password"
-                                className="form-control"
-                                name="password"
-                                value={this.state.password}
-                                onChange={this.onChangePassword}
-                                validations={[required]}
-                            />
-                        </div>
-
-                        <div>
-                            <button
-                                className="submitbtn"
-                                disabled={this.state.loading}
-                            >
-                                {this.state.loading && (
-                                    <span className="spinner-border spinner-border-sm"></span>
-                                )}
-                                <span>Login</span>
-                            </button>
-                        </div>
-
-                        <div>
-                            <p className="login-text">Not have an account?
-                        <Link to="/register"  > SignUp</Link>
-                            </p>
-                        </div>
-
-                        {this.state.message && (
-                            <div>
-                                <div className="alert alert-danger" role="alert">
-                                    {this.state.message}
-                                </div>
-                            </div>
-                        )}
-                        <CheckButton
-                            style={{ display: "none" }}
-                            ref={c => {
-                                this.checkBtn = c;
-                            }}
-                        />
-                    </Form>
+            <div>
+                <p className="login-text">Not have an Account?
+                    <Link to="/register"  > Sign Up</Link>
+                </p>
             </div>
-        );
-    }
-}
+        </div> 
+      )}
+    </Formik>
+  </div>
+};
+
+export default Login;
