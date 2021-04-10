@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import { useTable, useSortBy, usePagination } from 'react-table'
 import { COLUMNS } from './column'
-import { DATA } from './data'
 import MOCK_DATA from './MOCK_DATA.json'
 
 export default function Profile() {
