@@ -1,6 +1,7 @@
-import React, { useMemo } from 'react';
-import { useTable, useSortBy, usePagination } from 'react-table'
+import React, { Fragment, useMemo } from 'react';
+import { useTable, useSortBy, usePagination, useGlobalFilter } from 'react-table'
 import { COLUMNS } from './column'
+import { GlobalFilter } from './GlobalFilter';
 import MOCK_DATA from './MOCK_DATA.json'
 
 export default function Profile() {
@@ -22,19 +23,24 @@ export default function Profile() {
         nextPage,
         previousPage,
         setPageSize,
-        state: { pageIndex, pageSize }
+        state : { pageIndex, pageSize, globalFilter},
+        setGlobalFilter,
     } = useTable(
         {
             columns,
             data,
             initialState: { pageSize: 10 }
         },
+        
+        useGlobalFilter,
         useSortBy,
         usePagination
     );
 
+
     return (
-        <div>
+        <Fragment>
+            <GlobalFilter filter={globalFilter} setFilter={setGlobalFilter}/>
             <table {...getTableProps()}>
                 <thead>
                     {headerGroups.map(headerGroup => (
@@ -111,7 +117,7 @@ export default function Profile() {
                 </select>
             </div>
 
-        </div>
+        </Fragment>
     )
 }
 
