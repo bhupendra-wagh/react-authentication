@@ -3,11 +3,16 @@ import { useTable, useSortBy, usePagination, useGlobalFilter } from 'react-table
 import { COLUMNS } from './column'
 import { GlobalFilter } from './GlobalFilter';
 import MOCK_DATA from './MOCK_DATA.json'
+import {  Link } from "react-router-dom";
+import {connect} from 'react-redux';
 
-export default function Profile() {
+
+function Profile(props) {
+    console.log(0)
+    console.log(props.result.data);
     const columns = useMemo(() => COLUMNS, [])
-    const data = useMemo(() => MOCK_DATA, [])
-
+    //const data = useMemo(() => MOCK_DATA, [])
+    const data = useMemo(() => props.result.data, []);
     const {
         getTableProps,
         getTableBodyProps,
@@ -40,6 +45,7 @@ export default function Profile() {
 
     return (
         <Fragment>
+            <Link to="/add-user"  ><a><button className="addUserBtn">Add User</button></a></Link>
             <GlobalFilter filter={globalFilter} setFilter={setGlobalFilter}/>
             <table {...getTableProps()}>
                 <thead>
@@ -120,4 +126,16 @@ export default function Profile() {
         </Fragment>
     )
 }
+
+const mapStateToProps = state => {
+    
+    return {
+        result: state.createReducer
+    };
+  };
+
+  export default connect(
+    mapStateToProps,
+    null, 
+    )(Profile)
 
