@@ -5,6 +5,10 @@ import AuthService from '../services/auth-service';
 import FlashMessage from 'react-flash-message';
 import {  Link, Redirect } from "react-router-dom";
 import { useHistory } from "react-router-dom";
+import { GoogleLogin } from 'react-google-login';
+import setProfileInfo from '../Redux/reducers/setProfileInfoReducer';
+import { connect } from 'react-redux';
+import profileAction from '../Redux/actions/profileAction';
 
 const SignupSchema = Yup.object().shape({
   
@@ -15,8 +19,25 @@ const SignupSchema = Yup.object().shape({
   email: Yup.string().email('Invalid email').required('This field is required!'),
 });
 
-const Login = () => {
+const Login = (props) => {
   let history = useHistory(); 
+  const onSuccess = (res) => {
+    
+      props.setProfile(res);
+      // console.log(20)
+      //dispatch(setProfileDetail.setProfileInfo(response.data.userData));
+
+      history.push("/profile-detail");
+    
+  }
+
+  const onFailure = (res) => {
+    console.log('Login failed: res:', res);
+    alert(
+      'Login Failed.'
+    );
+  }
+
   return <div>
     <h1>Login</h1>
     <Formik
@@ -29,15 +50,15 @@ const Login = () => {
         // same shape as initial values
         
             AuthService.login(values.email, values.password).then(
-                () => 
+                (response) => 
                 {
-                    console.log(123);
+                    console.log(response);
                     
                     history.push("/profile");
                 },
                 error => {
                     
-                    
+                     
                 }
             )
       }}
@@ -70,7 +91,26 @@ const Login = () => {
         </div> 
       )}
     </Formik>
+
+    <div className="googleBtn">             
+      <GoogleLogin
+        clientId="189839431423-bdevdvui20emjufbka7ja87re8id65kr.apps.googleusercontent.com"
+        buttonText="Login with Google"
+        onSuccess={onSuccess}
+        onFailure={onFailure}
+        cookiePolicy={'single_host_origin'}
+      />
+    </div> 
+
   </div>
 };
 
-export default Login;
+const mapDispatchToProps = (dispatch) => {
+  return  {
+      setProfile : (res) => {
+          dispatch(profileAction(res));
+      }
+  }
+}
+
+export default connect(null, mapDispatchToProps)(Login);
