@@ -1,1 +1,2 @@
 export const CREATE_USER = 'CREATE_USER';
+export const PROFILE_DETAIL = 'PROFILE_DETAIL';
